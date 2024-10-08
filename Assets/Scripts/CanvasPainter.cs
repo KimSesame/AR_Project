@@ -3,32 +3,35 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class DrawingManager : MonoBehaviour
+public class CanvasPainter : Painter
 {
-    public Color selectedColor;
-    public RawImage canvasImage;
+    [SerializeField] GameObject canvas;
+    [SerializeField] Color selectedColor;
 
-    private bool onCanvas;
     private Texture2D drawingTexture;
+    [SerializeField] RawImage canvasImage;
     private Vector2 prevPos;
-
-    private GameObject canvas;
 
     private void Awake()
     {
         SelectColor(Color.black);
         prevPos = Vector2.zero;
-        onCanvas = false;
     }
 
     private void Start()
     {
-        canvas = transform.GetChild(0).gameObject;
+        canvasImage = canvas.GetComponent<RawImage>();
 
         InitCanvas();
     }
 
-    private void Update()
+    public void SelectColor(Color color) => selectedColor = color;
+    public void ToggleCanvas()
+    {
+        canvas.SetActive(GameManager.Instance.CurPainter.Equals(this));
+    }
+
+    public override void Paint()
     {
         if (Input.touchCount > 0)
         {
@@ -52,13 +55,6 @@ public class DrawingManager : MonoBehaviour
                     break;
             }
         }
-    }
-
-    public void SelectColor(Color color) => selectedColor = color;
-    public void ToggleCanvas()
-    {
-        onCanvas = !onCanvas;
-        canvas.SetActive(onCanvas);
     }
 
     private void InitCanvas()
