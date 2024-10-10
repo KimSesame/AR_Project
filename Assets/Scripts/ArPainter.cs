@@ -16,26 +16,24 @@ public class ArPainter : Painter
 
     public override void Paint()
     {
-        if(isUsed && startLine)
+        if (startLine)
         {
             DrawLine();
         }
     }
 
-    private bool isUsed;
     private bool startLine;
     public void StartDrawLine()
     {
-        isUsed = true;
         if (!startLine)
         {
             NextLine();
+            startLine = true;
         }
     }
 
     public void StopDrawLine()
     {
-        isUsed = false;
         startLine = false;
         lineRenderer = null;
     }
@@ -43,9 +41,7 @@ public class ArPainter : Painter
     private void NextLine()
     {
         // Generate line
-        GameObject newLine = Instantiate(linePrefab);
-        newLine.transform.SetParent(linePool);
-        newLine.transform.position = Vector3.zero;
+        GameObject newLine = Instantiate(linePrefab, Vector3.zero, Quaternion.identity, linePool);
         newLine.transform.localScale = Vector3.one;
 
         // Set line
@@ -53,7 +49,6 @@ public class ArPainter : Painter
         lineRenderer.positionCount = 1;
         lineRenderer.SetPosition(0, arBrush.position);
 
-        startLine = true;
         lineList.Add(lineRenderer);
     }
 

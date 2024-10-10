@@ -7,29 +7,34 @@ public class OnPressStay : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
     [SerializeField] ArPainter arPainter;
 
-    private bool isPressed = false;
-
     private void Start()
     {
         arPainter = GameManager.Instance.arPainter;
     }
 
-    private void Update()
-    {
-        if (isPressed)
-        {
-            arPainter.StartDrawLine();
-        }
-    }
-
     public void OnPointerDown(PointerEventData eventData)
     {
-        isPressed = true;
+        drawingCoroutine ??= StartCoroutine(DrawingRoutine());
     }
 
     public void OnPointerUp(PointerEventData eventData)
-    {   
-        isPressed = false; 
+    {
+        if (drawingCoroutine != null)
+        {
+            StopCoroutine(drawingCoroutine);
+            drawingCoroutine = null;
+        }
+
         arPainter.StopDrawLine();
+    }
+
+    Coroutine drawingCoroutine;
+    IEnumerator DrawingRoutine()
+    {
+        arPainter.StartDrawLine();
+        while (true)
+        {
+            yield return null;
+        }
     }
 }
