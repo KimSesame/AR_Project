@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class ArPainter : Painter
 {
+    [Header("Color")]
+    [SerializeField] Color selectedColor;
+
     [Header("Brush")]
     [SerializeField] Transform arBrush;
 
@@ -14,6 +17,12 @@ public class ArPainter : Painter
 
     private LineRenderer lineRenderer;
 
+    private void Awake()
+    {
+        SelectColor(Color.black);
+    }
+
+    public override void SelectColor(Color color) => selectedColor = color;
     public override void Paint()
     {
         if (startLine)
@@ -46,6 +55,8 @@ public class ArPainter : Painter
 
         // Set line
         lineRenderer = newLine.GetComponent<LineRenderer>();
+        lineRenderer.startColor = selectedColor;
+        lineRenderer.endColor = selectedColor;
         lineRenderer.positionCount = 1;
         lineRenderer.SetPosition(0, arBrush.position);
 

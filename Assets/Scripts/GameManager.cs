@@ -12,8 +12,6 @@ public class GameManager : MonoBehaviour
     public ArPainter arPainter;
     public CanvasPainter canvasPainter;
 
-    public Painter CurPainter { get { return curPainter; } private set { curPainter = value; } }
-
     private void Awake()
     {
         if (Instance == null)

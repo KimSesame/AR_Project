@@ -5,11 +5,14 @@ using UnityEngine.UI;
 
 public class CanvasPainter : Painter
 {
-    [SerializeField] GameObject canvas;
+    [Header("Color")]
     [SerializeField] Color selectedColor;
 
-    private Texture2D drawingTexture;
+    [Header("Canvas")]
+    [SerializeField] GameObject canvas;
     [SerializeField] RawImage canvasImage;
+
+    private Texture2D drawingTexture;
     private Vector2 prevPos;
 
     private void Awake()
@@ -25,12 +28,12 @@ public class CanvasPainter : Painter
         InitCanvas();
     }
 
-    public void SelectColor(Color color) => selectedColor = color;
     public void ToggleCanvas()
     {
-        canvas.SetActive(GameManager.Instance.CurPainter.Equals(this));
+        canvas.SetActive(GameManager.Instance.curPainter.Equals(this));
     }
 
+    public override void SelectColor(Color color) => selectedColor = color;
     public override void Paint()
     {
         if (Input.touchCount > 0)
