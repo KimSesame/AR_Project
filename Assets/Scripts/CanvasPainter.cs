@@ -85,6 +85,13 @@ public class CanvasPainter : Painter
         // Transform current coordinate Screen to RectTransform
         RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, position, null, out Vector2 localPoint);
 
+        // Check canvas boundary
+        if (localPoint.x < canvasRect.rect.xMin || localPoint.x > canvasRect.rect.xMax ||
+            localPoint.y < canvasRect.rect.yMin || localPoint.y > canvasRect.rect.yMax)
+        {
+            return;
+        }
+
         float widthRatio = (localPoint.x - canvasRect.rect.xMin) / canvasRect.rect.width;
         float heightRatio = (localPoint.y - canvasRect.rect.yMin) / canvasRect.rect.height;
 
