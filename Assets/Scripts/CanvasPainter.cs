@@ -30,7 +30,7 @@ public class CanvasPainter : Painter
 
     public void ToggleCanvas()
     {
-        canvas.SetActive(GameManager.Instance.curPainter.Equals(this));
+        canvas.SetActive(GameManager.Instance.CurMode == GameManager.Mode.Canvas);
     }
 
     public override void SelectColor(Color color) => selectedColor = color;

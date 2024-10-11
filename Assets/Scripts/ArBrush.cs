@@ -18,7 +18,7 @@ public class ArBrush : MonoBehaviour
 
     public void ToggleBrush()
     {
-        spRenderer.enabled = GameManager.Instance.curPainter.Equals(GameManager.Instance.arPainter);
+        spRenderer.enabled = (GameManager.Instance.CurMode == GameManager.Mode.AR);
     }
 
     public void SelectColor(Color color)
