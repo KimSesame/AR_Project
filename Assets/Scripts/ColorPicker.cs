@@ -17,15 +17,19 @@ public class ColorPicker : MonoBehaviour, IPointerDownHandler, IDragHandler, IPo
 
     private Image paletteImage;
     private BoxCollider2D paletteCollider;
+    private GameObject paletteCovers;
     private Image paletteThumbnailImage;
     private BoxCollider2D paletteThumbnailCollider;
+    private GameObject paletteThumbnailCovers;
 
     private void Awake()
     {
         paletteImage = palette.GetComponent<Image>();
         paletteCollider = palette.GetComponent<BoxCollider2D>();
+        paletteCovers = palette.gameObject.transform.GetChild(0).gameObject;
         paletteThumbnailImage = paletteThumbnail.GetComponent<Image>();
         paletteThumbnailCollider = paletteThumbnail.GetComponent<BoxCollider2D>();
+        paletteThumbnailCovers = paletteThumbnail.gameObject.transform.GetChild(0).gameObject;
     }
 
     public void OnPointerDown(PointerEventData eventData)
@@ -47,8 +51,10 @@ public class ColorPicker : MonoBehaviour, IPointerDownHandler, IDragHandler, IPo
 
     private void MagnifyPalette(bool flag)
     {
+        paletteCovers.SetActive(flag);
         paletteImage.enabled = flag;
         paletteCollider.enabled = flag;
+        paletteThumbnailCovers.SetActive(!flag);
         paletteThumbnailImage.enabled = !flag;
         paletteThumbnailCollider.enabled = !flag;
     }
@@ -102,8 +108,35 @@ public class ColorPicker : MonoBehaviour, IPointerDownHandler, IDragHandler, IPo
         int textureX = Mathf.RoundToInt(ratioX * textureRect.width);
         int textureY = Mathf.RoundToInt(ratioY * textureRect.height);
 
-        pickedColor = paletteTexture.GetPixel(textureX, textureY);
+        // Check covered color
+        if (IsCovered(localPoint))
+            pickedColor = Color.black;
+        else
+            pickedColor = paletteTexture.GetPixel(textureX, textureY);
 
         return pickedColor;
+    }
+
+    private bool IsCovered(Vector2 localPoint)
+    {
+        // Inspect all covers
+        foreach (RectTransform coverRect in paletteCovers.GetComponentsInChildren<RectTransform>())
+        {
+            // Skip parent
+            if (coverRect == paletteCovers.GetComponent<RectTransform>())
+                continue;
+
+            // Transform cover coordinate to Color Picker
+            Vector2 coverLocalPos = coverRect.anchoredPosition;
+            float coverMinX = coverLocalPos.x - coverRect.rect.width / 2;
+            float coverMaxX = coverLocalPos.x + coverRect.rect.width / 2;
+            float coverMinY = coverLocalPos.y - coverRect.rect.height / 2;
+            float coverMaxY = coverLocalPos.y + coverRect.rect.height / 2;
+
+            // Inspect picker is covered
+            if (localPoint.x >= coverMinX && localPoint.x <= coverMaxX && localPoint.y >= coverMinY && localPoint.y <= coverMaxY)
+                return true;
+        }
+        return false;
     }
 }
