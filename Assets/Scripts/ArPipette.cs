@@ -1,18 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ArPipette : MonoBehaviour
 {
-    private SpriteRenderer spRenderer;
+    private Image image;
 
     private void Awake()
     {
-        spRenderer = GetComponent<SpriteRenderer>();
+        image = GetComponent<Image>();
     }
 
     public void TogglePipette()
     {
-        spRenderer.enabled = (GameManager.Instance.CurMode == GameManager.Mode.Collect);
+        image.enabled = (GameManager.Instance.CurMode == GameManager.Mode.Collect);
     }
 }
