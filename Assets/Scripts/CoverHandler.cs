@@ -1,11 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
+
+[System.Serializable]
+public class CoverData
+{
+    public bool[] covers = new bool[8 * 9];
+}
 
 public class CoverHandler : MonoBehaviour
 {
     [SerializeField] Transform paletteCovers;
-    [SerializeField] Transform paletteThumnailCovers;
+    [SerializeField] Transform paletteThumbnailCovers;
     [SerializeField] Texture2D paletteTexture;
 
     private const int COVERS_WIDTH = 9;
@@ -19,6 +26,7 @@ public class CoverHandler : MonoBehaviour
 
         paletteColors = paletteTexture.GetPixels();
 
+        LoadCoversState();
         InitCovers();
     }
 
@@ -29,14 +37,6 @@ public class CoverHandler : MonoBehaviour
 
     private void InitCovers()
     {
-        // Init covers array
-        for (int i = 0; i < COVERS_HEIGHT; i++)
-            for (int j = 0; j < COVERS_WIDTH; j++)
-            {
-                covers[i, j] = true;
-            }
-
-        // Adapt covers status
         for (int i = 0; i < COVERS_HEIGHT; i++)
             for (int j = 0; j < COVERS_WIDTH; j++)
             {
@@ -57,21 +57,73 @@ public class CoverHandler : MonoBehaviour
         Vector2Int closestCover = FindClosestCover(color);
         if (closestCover == new Vector2Int(-1, -1))
             return;
-        
+
         Vector2Int gridCoords = PixelToGridCoords(closestCover);
-        
 
         RevealArea(gridCoords.x, gridCoords.y);
+        SaveCoversState();
     }
 
     private void RevealArea(int w, int h)
     {
         int targetChild = w * COVERS_WIDTH + h;
-        Debug.Log($"[{w}, {h}]: {targetChild}");
+        
         // Reveal
         covers[w, h] = false;
         paletteCovers.GetChild(targetChild).gameObject.SetActive(false);
-        paletteThumnailCovers.GetChild(targetChild).gameObject.SetActive(false);
+        paletteThumbnailCovers.GetChild(targetChild).gameObject.SetActive(false);
+    }
+
+    private string GetSaveFilePath() => Application.persistentDataPath + "/CoversData1.json";
+    private void SaveCoversState()
+    {
+        Debug.Log("SaveCoversState");
+        CoverData coverData = new CoverData();
+
+        // Copy
+        for (int i = 0; i < COVERS_HEIGHT; i++)
+            for (int j = 0; j < COVERS_WIDTH; j++)
+            {
+                coverData.covers[i * COVERS_WIDTH + j] = covers[i, j];
+            }
+
+        // Save
+        string json = JsonUtility.ToJson(coverData);
+        File.WriteAllText(GetSaveFilePath(), json);
+
+        Debug.Log($"{json}");
+    }
+
+    private void LoadCoversState()
+    {
+        Debug.Log("LoadCoversState");
+        string path = GetSaveFilePath();
+
+        // Load json
+        if (File.Exists(path))
+        {
+            string json = File.ReadAllText(path);
+            CoverData coverData = JsonUtility.FromJson<CoverData>(json);
+
+            // Load
+            for (int i = 0; i < COVERS_HEIGHT; i++)
+                for (int j = 0; j < COVERS_WIDTH; j++)
+                {
+                    covers[i, j] = coverData.covers[i * COVERS_WIDTH + j];
+                }
+        }
+        // Make json
+        else
+        {
+            // Init covers array
+            for (int i = 0; i < COVERS_HEIGHT; i++)
+                for (int j = 0; j < COVERS_WIDTH; j++)
+                {
+                    covers[i, j] = true;
+                }
+
+            SaveCoversState();
+        }
     }
 
     private Vector2Int FindClosestCover(Color targetColor)
